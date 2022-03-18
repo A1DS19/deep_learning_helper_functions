@@ -39,7 +39,7 @@ def load_and_prep_image(filename, img_shape=224, scale=True):
 # plot_confusion_matrix function - https://scikit-learn.org/stable/modules/generated/sklearn.metrics.plot_confusion_matrix.html
 
 # Our function needs a different name to sklearn's plot_confusion_matrix
-def make_confusion_matrix(y_true, y_pred, classes=None, figsize=(10, 10), text_size=15, norm=False, savefig=False):
+def make_confusion_matrix(y_true, y_pred, classes=None, figsize=(10, 10), text_size=15, norm=False, savefig=False, vertical_x_labels=True):
     """Makes a labelled confusion matrix comparing predictions and ground truth labels.
 
     If classes is passed, confusion matrix will be labelled, if not, integer class values
@@ -53,6 +53,7 @@ def make_confusion_matrix(y_true, y_pred, classes=None, figsize=(10, 10), text_s
       text_size: Size of output figure text (default=15).
       norm: normalize values or not (default=False).
       savefig: save confusion matrix to file (default=False).
+      vertical_x_labels: display xlabels verticallly instead of horizontally.
 
     Returns:
       A labelled confusion matrix plot comparing y_true and y_pred.
@@ -96,6 +97,11 @@ def make_confusion_matrix(y_true, y_pred, classes=None, figsize=(10, 10), text_s
     # Make x-axis labels appear on bottom
     ax.xaxis.set_label_position("bottom")
     ax.xaxis.tick_bottom()
+
+    if vertical_x_labels:
+        ##CHANGE (plot x-labels vertically)##
+        plt.xticks(rotation=70, fontsize=text_size)
+        plt.yticks(fontsize=text_size)
 
     # Set the threshold for different colors
     threshold = (cm.max() + cm.min()) / 2.
@@ -305,3 +311,21 @@ def calculate_results(y_true, y_pred):
                      "recall": model_recall,
                      "f1": model_f1}
     return model_results
+
+
+def create_model_checkpoint_callback(filepath):
+    """
+    Returns a ModelCheckpoint callback
+
+    Params:
+        filepath -> String = File path of where to save desired model checkpoint
+
+    Returns:
+        Model checkpoint callback
+    """
+    return tf.keras.callbacks.ModelCheckpoint(
+        filepath=filepath,
+        vebose=1,
+        save_best_only=True,
+        save_weights_only=True,
+        monitor='val_accuracy')
